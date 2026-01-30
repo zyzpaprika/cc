@@ -1,0 +1,8 @@
+fastapi
+uvicorn[standard]
+httpx
+pydantic
+requests
+python-dotenv
+sqlmodel
+psycopg2-binary  
