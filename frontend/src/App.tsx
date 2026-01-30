@@ -1,6 +1,12 @@
 import { useEffect, useState } from 'react'
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
+// --- CONFIGURATION ---
+// 1. Check your Render Dashboard for the exact URL. 
+// It usually looks like: https://SERVICE-NAME.onrender.com
+const API_BASE = "https://codeconnect-api-cfxt.onrender.com"; 
+// ---------------------
+
 interface Stats {
   leetcode: number;
   codeforces: number;
@@ -23,18 +29,20 @@ function App() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // 1. Fetch Current Stats
-        const statsRes = await fetch('/api/stats');
+        console.log("Fetching from:", API_BASE); // Debug log
+
+        // 1. Fetch Current Stats (Using Full URL)
+        const statsRes = await fetch(`${API_BASE}/stats`);
         if (!statsRes.ok) throw new Error(`Stats API Error: ${statsRes.statusText}`);
         const statsData = await statsRes.json();
         setStats(statsData);
 
-        // 2. Fetch History
-        const histRes = await fetch('/api/history');
+        // 2. Fetch History (Using Full URL)
+        const histRes = await fetch(`${API_BASE}/history`);
         if (!histRes.ok) throw new Error(`History API Error: ${histRes.statusText}`);
         const histData = await histRes.json();
         
-        // CRITICAL SAFETY CHECK: Ensure it is actually an array before mapping
+        // CRITICAL SAFETY CHECK
         if (Array.isArray(histData)) {
            const formatted = histData.map((item: any) => ({
             ...item,
@@ -43,7 +51,7 @@ function App() {
           setHistory(formatted);
         } else {
           console.warn("History data is not an array:", histData);
-          setHistory([]); // Fallback to empty list to prevent crash
+          setHistory([]);
         }
 
       } catch (err: any) {
@@ -59,12 +67,11 @@ function App() {
 
   if (loading) return <div className="bg-gray-950 min-h-screen text-white flex items-center justify-center text-xl">Loading your legacy...</div>;
   
-  // Show error on screen instead of crashing
   if (error) return (
     <div className="bg-gray-950 min-h-screen text-red-400 flex flex-col items-center justify-center p-4">
       <h1 className="text-2xl font-bold mb-2">Connection Error</h1>
       <p>{error}</p>
-      <p className="text-sm text-gray-500 mt-4">Check console (F12) for details.</p>
+      <p className="text-xs text-gray-500 mt-4">Trying to connect to: {API_BASE}</p>
     </div>
   );
 
