@@ -1,28 +1,41 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import stats
-from app.services.scraper import create_db_and_tables
+from app import scraper, storage
+import os
+import asyncio
 
 app = FastAPI()
 
-# --- CORS MIDDLEWARE (Security Clearance) ---
-# This allows your React app to talk to this API
+# --- CORS SETTINGS (The Fix) ---
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, you might change this to your Vercel URL
+    allow_origins=["*"],  # Allows ALL domains (simplest for debugging)
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["*"],  # Allows all methods (GET, POST, etc.)
+    allow_headers=["*"],  # Allows all headers
 )
-
-# Initialize Database on Startup
-@app.on_event("startup")
-def on_startup():
-    create_db_and_tables()
-
-# Include the stats router
-app.include_router(stats.router)
+# -------------------------------
 
 @app.get("/")
 def read_root():
     return {"message": "Portfolio API is running!"}
+
+@app.get("/stats")
+async def get_stats():
+    try:
+        # Run scraper (or fetch from DB if you prefer caching)
+        data = await scraper.scrape_all()
+        return data
+    except Exception as e:
+        print(f"Error in /stats: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/history")
+def get_history():
+    try:
+        # Fetch history from Neon DB
+        data = storage.get_history()
+        return data
+    except Exception as e:
+        print(f"Error in /history: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
