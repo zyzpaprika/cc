@@ -16,7 +16,7 @@ async def read_stats():
 @router.get("/history", response_model=List[HistoryEntry])
 def read_history():
     with Session(engine) as session:
-        # Select all stats, ordered by date (oldest to newest)
+        # select all
         statement = select(DailyStat).order_by(DailyStat.date)
         results = session.exec(statement).all()
         return results

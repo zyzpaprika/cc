@@ -4,16 +4,15 @@ from app import scraper, storage
 import os
 
 app = FastAPI()
-
-# --- THE FIX: Allow Direct Connections ---
+# direct conn
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allows ALL origins (Vercel, Localhost, etc.)
+    allow_origins=["*"],  # allowed origins
     allow_credentials=True,
-    allow_methods=["*"],  # Allows GET, POST, etc.
+    allow_methods=["*"],  # allowed methods
     allow_headers=["*"],
 )
-# -----------------------------------------
+
 
 @app.get("/")
 def read_root():

@@ -1,13 +1,7 @@
 import { useEffect, useState } from 'react'
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
-// ------------------------------------------------------------------
-// 🚨 UPDATE THIS URL TO MATCH YOUR RENDER BACKEND EXACTLY 🚨
-// It should look like: "https://codeconnect-api.onrender.com"
-// Do NOT include a trailing slash (/)
 const API_BASE = "https://codeconnect-api-cfxt.onrender.com"; 
-// ------------------------------------------------------------------
-
 interface Stats { leetcode: number; codeforces: number; github: number; }
 interface HistoryItem { date: string; leetcode_count: number; }
 
@@ -22,13 +16,13 @@ function App() {
       try {
         console.log("Attempting to fetch from:", API_BASE);
         
-        // 1. Fetch Current Stats (Direct URL)
+        // Fetch Current Stats 
         const statsRes = await fetch(`${API_BASE}/stats`);
         if (!statsRes.ok) throw new Error(`Stats Failed: ${statsRes.statusText}`);
         const statsData = await statsRes.json();
         setStats(statsData);
 
-        // 2. Fetch History (Direct URL)
+        // Fetch History 
         const histRes = await fetch(`${API_BASE}/history`);
         if (!histRes.ok) throw new Error(`History Failed: ${histRes.statusText}`);
         const histData = await histRes.json();
@@ -61,7 +55,7 @@ function App() {
   return (
     <div className="min-h-screen bg-gray-950 text-white p-10">
       <div className="max-w-4xl mx-auto space-y-8">
-        <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">Dev Dashboard</h1>
+        <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">Code Connect</h1>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <StatCard title="LeetCode" value={stats?.leetcode || 0} color="text-yellow-500" />

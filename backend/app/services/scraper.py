@@ -5,33 +5,26 @@ from datetime import datetime, date
 from sqlmodel import SQLModel, Session, create_engine, select
 from app.models import DailyStat
 
-# --- DATABASE SETUP ---
 
-# 1. Try to get the Cloud URL from Environment Variables
+# env
 DATABASE_URL = os.environ.get("DATABASE_URL")
 
-# 2. Configuration for the engine
 connect_args = {}
 
 if DATABASE_URL:
-    # If we are in the cloud (Neon), we need to fix the URL slightly for SQLAlchemy
-    # Neon gives "postgres://", but SQLAlchemy wants "postgresql://"
     if DATABASE_URL.startswith("postgres://"):
         DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 else:
-    # If no Cloud URL, fall back to local SQLite
     DATABASE_URL = "sqlite:///database.db"
     connect_args = {"check_same_thread": False}
 
-# 3. Create the engine
+# engine
 engine = create_engine(DATABASE_URL, echo=True, connect_args=connect_args)
 
 def create_db_and_tables():
     SQLModel.metadata.create_all(engine)
 
-# --- SCRAPER LOGIC ---
-
-# Replace these with your actual handles
+# handles
 LEETCODE_USERNAME = "zyzpaprika" 
 CODEFORCES_USERNAME = "paprikazyz"
 GITHUB_USERNAME = "zyzpaprika"
@@ -87,31 +80,27 @@ async def fetch_github_stats():
             return 0
 
 async def get_all_stats():
-    # 1. Fetch live data
+    # 1. Fetch all data
     lc, cf, gh = await asyncio.gather(
         fetch_leetcode_stats(),
         fetch_codeforces_stats(),
         fetch_github_stats()
     )
     
-    # 2. Save OR Update Database
     with Session(engine) as session:
-        # Check if we already have an entry for TODAY
-        today_start = datetime.now().date()
         
-        # SQL logic: Select * from DailyStat where date >= today's midnight
+        today_start = datetime.now().date()
         statement = select(DailyStat).where(DailyStat.date >= today_start)
         existing_stat = session.exec(statement).first()
 
         if existing_stat:
-            # UPDATE existing entry
             print(f"Updating stats for {today_start}")
             existing_stat.leetcode_count = lc
             existing_stat.codeforces_rating = cf
             existing_stat.github_repos = gh
             session.add(existing_stat)
         else:
-            # CREATE new entry
+            # new entry
             print(f"Creating new stats for {today_start}")
             stat_entry = DailyStat(
                 leetcode_count=lc,
