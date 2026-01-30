@@ -5,7 +5,7 @@ import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'rec
 // 🚨 UPDATE THIS URL TO MATCH YOUR RENDER BACKEND EXACTLY 🚨
 // It should look like: "https://codeconnect-api.onrender.com"
 // Do NOT include a trailing slash (/)
-const API_BASE = "https://codeconnect-api-cfxt.onrender.com/"; 
+const API_BASE = "https://codeconnect-api-cfxt.onrender.com"; 
 // ------------------------------------------------------------------
 
 interface Stats { leetcode: number; codeforces: number; github: number; }
